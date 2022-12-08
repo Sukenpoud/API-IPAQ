@@ -1,0 +1,1 @@
+PORT=3001 DB_ID='romadmin' DB_PW='JLm88vGg6RfYSOgN' CLIENT_ID='68233754604-de4kqjcsmkfj3m0a0l6lc3g87ktjqbb1.apps.googleusercontent.com' nodemon server.js
