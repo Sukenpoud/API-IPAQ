@@ -14,5 +14,6 @@ router.get('/:id', loggerMdl, ipCtrl.getOneIp);
 router.post('/', loggerMdl, ipCtrl.createIp);
 router.put('/:id', loggerMdl, ipCtrl.updateIp);
 router.delete('/:id', loggerMdl, ipCtrl.deleteIp);
+router.post('/create', loggerMdl, ipCtrl.insertIp);
 
 module.exports = router;
