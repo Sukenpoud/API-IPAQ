@@ -6,6 +6,7 @@ module.exports = pino(
             target: 'pino-pretty',
             options: {
                 colorize: false,
+                translateTime:'SYS:standard',
                 destination: `${__dirname}/combined.log`
               }
         },

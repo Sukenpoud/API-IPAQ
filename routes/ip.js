@@ -10,7 +10,7 @@ const ipCtrl = require('../controllers/ip');
 
 // routes disponibles (CRUD)
 router.get('/', [authMdl, loggerMdl], ipCtrl.getIpList);
-router.get('/:id', loggerMdl, ipCtrl.getOneIp); // possible de mettre en série des middlewares en utilisant un array []
+router.get('/:id', loggerMdl, ipCtrl.getOneIp);
 router.post('/', loggerMdl, ipCtrl.createIp);
 router.put('/:id', loggerMdl, ipCtrl.updateIp);
 router.delete('/:id', loggerMdl, ipCtrl.deleteIp);

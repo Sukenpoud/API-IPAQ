@@ -81,3 +81,19 @@ exports.deleteIp = (req, res, next) => {
         })
         .catch((err) => res.status(500).json({message: 'CANNOT DELETE', error: err}))
 }
+
+// const obj = new Ip({
+//     ipv4: "192.0.0.0",
+//     city: "Paris",
+//     region: "Ile de France",
+//     country: "France",
+//     latln: "48.86244755473046, 2.295191654042415",
+//     userId: "user1",
+//     creationDate: new Date(),
+//     modificationDate: new Date(),
+//     active: true
+// });
+
+// obj.save()
+//     .then((saved) => console.log('OK', saved))
+//     .catch((err) => console.log('ERROR', err))

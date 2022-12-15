@@ -4,6 +4,9 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const compression = require('compression');
 const logger = require('./logger');
+// Import the `dotenv` package
+require('dotenv').config();
+
 
 const app = express();
 app.use(helmet());
@@ -21,7 +24,7 @@ const dbID = process.env.DB_ID;
 const dbPW = process.env.DB_PW;
 const DB = 'mongodb+srv://'+dbID+':'+dbPW+'@cluster0.nssey38.mongodb.net/?retryWrites=true&w=majority';
 
-mongoose.connect(DB, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(DB, { useNewUrlParser: true, useUnifiedTopology: true, dbName: "api-ipaq" })
     .then(() => logger.info('Connected to MongoDB'))
     .catch((err) => {
         logger.error('MongoDB ERROR CONNECT', err)
@@ -30,12 +33,10 @@ mongoose.connect(DB, { useNewUrlParser: true, useUnifiedTopology: true })
 app.use(bodyParser.json());
 
 // import routes
-const objectRoutes = require('./routes/object');
-const objectRoutes = require('./routes/ip');
+const ipRoutes = require('./routes/ip');
 const userRoutes = require('./routes/user');
 
-app.use('/api/objects', objectRoutes);
-app.use('/api/ip', objectRoutes);
+app.use('/api/ip', ipRoutes);
 app.use('/api/auth', userRoutes);
 
 // export app

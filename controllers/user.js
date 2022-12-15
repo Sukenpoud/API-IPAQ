@@ -166,16 +166,3 @@ exports.deleteUser = (req, res, next) => {
             res.status(500).json({message: 'CANNOT DELETE', error: err});
         })
 }
-
-// const user = new User({
-//     name: 'Chaise',
-//     weight: 8,
-//     url: '',
-//     creationDate: new Date(),
-//     modificationDate: new Date(),
-//     active: true
-// });
-//
-// user.save()
-//     .then((saved) => console.log('OK', saved))
-//     .catch((err) => console.log('ERROR', err))
