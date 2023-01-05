@@ -2,6 +2,8 @@ const Ip = require('../models/ip');
 const jwt = require('jsonwebtoken');
 const logger = require('../logger');
 const { IPinfoWrapper } = require("node-ipinfo");
+const axios = require('axios');
+
 
 // GET ALL IPs
 exports.getIpList = (req, res, next) => {
@@ -26,35 +28,65 @@ exports.getOneIp = (req, res, next) => {
         });
 }
 
-// CREATE ONE IP
+// CREATE ONE IP BEFORE IMPLEMENTING AUTH
 exports.insertIp = (req, res, next) => {
     const ipinfo = new IPinfoWrapper(process.env.IPINFO_TOKEN);
     logger.info('TEST API IPINFO', req.body);
 
+    // FIRST API CALL "IPINFO"
     ipinfo.lookupIp(req.body.ip).then((response) => {
-        const ip = new Ip({
-            ipv4: response.ip,
-            city: response.city,
-            region: response.region,
-            country: response.country,
-            latln: response.loc,
-            userId: "userId", // TODO : AJOUTER L'ID USER
-            creationDate: new Date(),
-            modificationDate: new Date(),
-            active: true
-        });
-        ip.save()
-            .then((saved) => {
-                logger.info('POST createIp');
-                res.status(200).json(saved)
+        const ipv4 = response.ip;
+        let coords = response.loc;
+        let coordArray = coords.split(',');
+        const [latitude, longitude] = coordArray;
+        const airvisualKey = "f20d1f24-a012-4267-9674-d98c66228c6f";
+
+        // SECOND API CALL "AIRVISUAL"
+        axios.get('http://api.airvisual.com/v2/nearest_city', {
+            params: {
+                lat: latitude,
+                lon: longitude,
+                key: airvisualKey
+            }
+          })
+            .then(response => {
+              console.log(response.data.data);
+              
+              const ip = new Ip({
+                  ipv4: ipv4,
+                  latitude: latitude,
+                  longitude: longitude,
+                  city: response.data.data.city,
+                  region: response.data.data.state,
+                  country: response.data.data.country,
+                  pollution: response.data.data.current.pollution,
+                  weather: response.data.data.current.weather,
+                  userId: "userId", // TODO : AJOUTER L'ID USER
+                  creationDate: new Date(),
+                  modificationDate: new Date(),
+                  active: true
+              });
+              ip.save()
+                  .then((saved) => {
+                      logger.info('POST createIp');
+                      res.status(200).json(saved);
+                  })
+                  .catch((err) => {
+                      logger.error('POST createIp', err);
+                      res.status(500).json({message: 'API REST ERROR : save error'});
+                  });
             })
-            .catch((err) => {
-                logger.error('POST createIp', err);
-                res.status(500).json({message: 'API REST ERROR : Pb avec la création'});
+            .catch(error => {
+                logger.error('POST createIp AIRVISUAL API CALL', error);
             });
+    })
+    .catch((err) => {
+        logger.error('POST createIp : ipinfo API call', err);
+        res.status(500).json({message: 'API REST ERROR : ipinfo API call'});
     });
 }
 
+// CREATE ONE IP AFTER IMPLEMENTING AUTH
 exports.createIp = (req, res, next) => {
     logger.info('POST createIp', req.body);
     const token = req.headers.authorization;
@@ -97,7 +129,7 @@ exports.updateIp = (req, res, next) => {
 
 // DELETE ONE IP
 exports.deleteIp = (req, res, next) => {
-    logger.info('DELTE deleteIp', req.params.id);
+    logger.info('DELETE deleteIp', req.params.id);
 
     Ip.findByIdAndDelete(req.params.id)
         .then((result) => {

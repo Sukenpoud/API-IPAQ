@@ -4,8 +4,8 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const compression = require('compression');
 const logger = require('./logger');
-// Import the `dotenv` package
 require('dotenv').config();
+const axios = require('axios');
 
 
 const app = express();
