@@ -8,12 +8,12 @@ const authMdl = require('../middlewares/auth');
 const ipCtrl = require('../controllers/ip');
 
 // routes disponibles (CRUD)
-router.get('/', [], ipCtrl.getIpList);
-router.get('/:id', [], ipCtrl.getOneIp);
-router.post('/', [], ipCtrl.createIp);
-router.put('/:id', [], ipCtrl.updateIp);
-router.delete('/:id', [], ipCtrl.deleteIp);
+router.get('/all', [authMdl], ipCtrl.getIpList);
+router.get('/', [authMdl], ipCtrl.getUserIpList);
+router.get('/:id', [authMdl], ipCtrl.getOneIp);
+router.put('/:id', [authMdl], ipCtrl.updateIp);
+router.delete('/:id', [authMdl], ipCtrl.deleteIp);
 
-router.post('/create', ipCtrl.insertIp);
+router.post('/create', [authMdl], ipCtrl.createIp);
 
 module.exports = router;

@@ -4,7 +4,7 @@ const logger = require('../logger');
 
 module.exports = (req, res, next) => {
     try{
-        logger.info('Middleware Auth')
+        logger.info('Middleware Auth OK');
         const email = req.headers.email;
         const token = req.headers.authorization;
         const decodeToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET');
@@ -19,7 +19,7 @@ module.exports = (req, res, next) => {
             })
             .catch(() => res.status(403).json({message: "UNAUTHORIZED"}))
     } catch {
-        logger.error('Middleware Auth');
+        logger.error('Middleware Auth Error');
         res.status(403).json({message: "Erreur dans le middleware : Auth"});
     }
 }

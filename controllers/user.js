@@ -93,8 +93,14 @@ exports.createUser = (req, res, next) => {
             });
 
             user.save()
-                .then((saved) => res.status(200).json(saved))
-                .catch(() => res.status(500).json({message: 'API REST ERROR : Pb avec la création'}));
+                .then((saved) => {
+                    logger.info('NEW USER');
+                    res.status(200).json(saved);
+                })
+                .catch(() => {
+                    logger.error('ERROR DURING USER CREATION');
+                    res.status(500).json({message: 'API REST ERROR : Pb avec la création'})
+                });
         })
         .catch(() => res.status(500).json({message: 'API REST ERROR : Pb avec le chiffrement'}))
 }
@@ -102,7 +108,8 @@ exports.createUser = (req, res, next) => {
 exports.login = (req, res, next) => {
 // logger.info(req.body);
 let token = req.body.token;
-
+logger.info('USER LOGIN');
+console.log(req.body);
 if (token) {
     verify(token, req, res).catch(console.error);
 } else {
