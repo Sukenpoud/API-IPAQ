@@ -106,36 +106,44 @@ exports.createUser = (req, res, next) => {
 }
 
 exports.login = (req, res, next) => {
-// logger.info(req.body);
-let token = req.body.token;
-logger.info('USER LOGIN');
-console.log(req.body);
-if (token) {
-    verify(token, req, res).catch(console.error);
-} else {
-    User.findOne({ email: req.body.email })
-        .then((user) => {
-            if (!user) {
-                res.status(401).json({message: 'USER RESULT NULL'})
-            } else {
-                bcrypt.compare(req.body.password, user.password)
-                    .then((valid) => {
-                        if (!valid) {
+    let token = req.body.token;
+    console.log(req.body);
+    if (token) {
+        logger.info('USER LOGIN WITH GOOGLE');
+        verify(token, req, res).catch(console.error);
+    } else {
+        User.findOne({ email: req.body.email })
+            .then((user) => {
+                if (!user) {
+                    logger.error('USER LOGIN FAILED : WRONG EMAIL');
+                    res.status(401).json({message: 'USER RESULT NULL'})
+                } else {
+                    bcrypt.compare(req.body.password, user.password)
+                        .then((valid) => {
+                            if (!valid) {
+                                logger.error('USER LOGIN FAILED : WRONG PASSWORD');
+                                res.status(500).json({message: 'API REST ERROR : COMPARISON FAILED'})
+                            } else {
+                                logger.info('USER LOGIN');
+                                const token = jwt.sign({userId: user._id}, 'RANDOM_TOKEN_SECRET', { expiresIn: '24h'});
+                                user.password = '';
+                                res.status(200).json({
+                                    token: token,
+                                    user: user
+                                })
+                            }
+                        })
+                        .catch((err) => {
+                            logger.error('USER LOGIN FAILED : PASSWORD COMPARISON FAILED');
                             res.status(500).json({message: 'API REST ERROR : COMPARISON FAILED'})
-                        } else {
-                            const token = jwt.sign({userId: user._id}, 'RANDOM_TOKEN_SECRET', { expiresIn: '24h'});
-                            user.password = '';
-                            res.status(200).json({
-                                token: token,
-                                user: user
-                            })
-                        }
-                    })
-                    .catch((err) => res.status(500).json({message: 'API REST ERROR : COMPARISON FAILED'}))
-            }
-        })
-        .catch(() => res.status(401).json({message: 'NOT FOUND'}))
-}
+                        })
+                }
+            })
+            .catch(() => {
+                logger.error('USER LOGIN FAILED');
+                res.status(401).json({message: 'NOT FOUND'})
+            })
+    }
 
 }
 
