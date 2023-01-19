@@ -1,1 +1,21 @@
-PORT=3001 DB_ID='romadmin' DB_PW='JLm88vGg6RfYSOgN' CLIENT_ID='68233754604-de4kqjcsmkfj3m0a0l6lc3g87ktjqbb1.apps.googleusercontent.com' nodemon server.js
+# IPAQ API
+
+Get your Air Quality with your IP address. Built with NodeJS and MongoDB.
+ 
+## Github
+
+[Repository](https://github.com/Sukenpoud/API-IPAQ.git)
+
+## Usage
+
+Start project
+
+```bash
+npm i
+node server.js
+```
+
+## API used
+
+[IPINFO](https://ipinfo.io/)
+[AIRVISUAL](https://api-docs.iqair.com/)

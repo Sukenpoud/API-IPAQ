@@ -8,25 +8,21 @@ const CLIENT_ID = process.env.CLIENT_ID;
 
 const client = new OAuth2Client(CLIENT_ID);
 
+// VERIFY TOKEN TO LOGIN WITH GOOGLE
 async function verify(token, req, res) {
     const ticket = await client.verifyIdToken({
         idToken: token,
         requiredAudience: CLIENT_ID
     });
     const payload = ticket.getPayload();
-    // const userid = payload['sub'];
-
-    // logger.info(payload);
 
     User.findOne({email: payload.email})
         .then((user) => {
             if(!user) {
-                //create user
                 req.body.email = payload.email;
                 req.body.name = payload.name;
                 req.body.password = payload.sub + new Date().getTime();
 
-                // ATTENTION DUPLICATION DE CODE -> CREER UNE FONCTION A APPELER
                 bcrypt.hash(req.body.password, 10)
                     .then((hash) => {
                         const user = new User({
@@ -37,12 +33,18 @@ async function verify(token, req, res) {
                             modificationDate: new Date(),
                             active: true
                         });
-
+            
                         user.save()
-                            .then((saved) => res.status(200).json(saved))
-                            .catch(() => res.status(500).json({message: 'API REST ERROR : Pb avec la création'}));
+                            .then((saved) => {
+                                logger.info('NEW USER');
+                                res.status(200).json(saved);
+                            })
+                            .catch(() => {
+                                logger.error('ERROR DURING USER CREATION');
+                                res.status(500).json({message: 'API REST ERROR : Pb avec la création'})
+                            });
                     })
-                    .catch(() => res.status(500).json({message: 'API REST ERROR : Pb avec le chiffrement'}));
+                    .catch(() => res.status(500).json({message: 'API REST ERROR : Pb avec le chiffrement'}))
             } else {
                 const token = jwt.sign({userId: user._id}, 'RANDOM_TOKEN_SECRET', { expiresIn: '24h'});
                 user.password = '';
@@ -57,6 +59,7 @@ async function verify(token, req, res) {
         })
 }
 
+// GET ALL USERS
 exports.getUserList = (req, res, next) => {
     logger.info('GET getUserList');
 
@@ -68,6 +71,7 @@ exports.getUserList = (req, res, next) => {
         });
 }
 
+// GET ONE USER
 exports.getOneUser = (req, res, next) => {
     logger.info('GET getUser', req.params);
     User.findById(req.params.id)
@@ -78,6 +82,7 @@ exports.getOneUser = (req, res, next) => {
         });
 }
 
+// CREATE USER
 exports.createUser = (req, res, next) => {
     logger.info('POST createUser', req.body);
 
@@ -105,9 +110,9 @@ exports.createUser = (req, res, next) => {
         .catch(() => res.status(500).json({message: 'API REST ERROR : Pb avec le chiffrement'}))
 }
 
+// LOGIN
 exports.login = (req, res, next) => {
     let token = req.body.token;
-    console.log(req.body);
     if (token) {
         logger.info('USER LOGIN WITH GOOGLE');
         verify(token, req, res).catch(console.error);
@@ -147,6 +152,7 @@ exports.login = (req, res, next) => {
 
 }
 
+// UPDATE USER
 exports.updateUser = (req, res, next) => {
     logger.info('PUT updateUser' + req.params, req.body);
 
@@ -164,6 +170,7 @@ exports.updateUser = (req, res, next) => {
         })
 }
 
+// DELETE USER
 exports.deleteUser = (req, res, next) => {
     logger.info('DELETE deleteUser', req.params.id);
 

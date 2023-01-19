@@ -4,7 +4,7 @@ const logger = require('../logger');
 const axios = require('axios');
 
 
-// GET ALL IPs
+// GET ALL IPS
 exports.getIpList = (req, res, next) => {
     logger.info('GET getIpList');
 
@@ -78,8 +78,20 @@ exports.createIp = (req, res, next) => {
                   city: response.data.data.city,
                   region: response.data.data.state,
                   country: response.data.data.country,
-                  pollution: response.data.data.current.pollution,
-                  weather: response.data.data.current.weather,
+                  pollution: {
+                    ts: response.data.data.current.pollution.ts,
+                    aqius: response.data.data.current.pollution.aqius,
+                    mainus: response.data.data.current.pollution.mainus,
+                  },
+                  weather: {
+                    ts: response.data.data.current.weather.ts,
+                    tp: response.data.data.current.weather.tp,
+                    pr: response.data.data.current.weather.pr,
+                    hu: response.data.data.current.weather.hu,
+                    ws: response.data.data.current.weather.ws,
+                    wd: response.data.data.current.weather.wd,
+                    ic: "https://www.airvisual.com/images/"+response.data.data.current.weather.ic+".png",
+                  },
                   userId: userId,
                   creationDate: new Date(),
                   modificationDate: new Date(),
@@ -105,7 +117,7 @@ exports.createIp = (req, res, next) => {
     });
 }
 
-// PUT ONE IP
+// UPDATE IP
 exports.updateIp = (req, res, next) => {
     logger.info('PUT updateIp');
 
@@ -129,7 +141,7 @@ exports.updateIp = (req, res, next) => {
         })
 }
 
-// DELETE ONE IP
+// DELETE IP
 exports.deleteIp = (req, res, next) => {
     logger.info('DELETE deleteIp', req.params.id);
 
